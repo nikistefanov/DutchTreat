@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<div class="row">
+    <div class="col-md-9">
+        <div class="product-info">
+            <img src="~/img/VanGogh.jpg" alt="Van Gogh" />
+            <h3>Mug</h3>
+            <ul class="product-props">
+                <li>Price: $9.99</li>
+                <li>Artist: Van Gogh</li>
+                <li>Title: </li>
+                <li>Description: Self-portrait</li>
+            </ul>
+            <button id="buyButton" class="btn btn-success">Buy</button>
+        </div>
+
+        <div id="theForm" class="the-form">
+
+        </div>
+
+        <div>
+            <div id="loginToggle" class="login-toggle">Login</div>
+            <form id="popupForm" class="popup-form">
+                <div>
+                    <label>Username</label>
+                    <input type="text" />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" />
+                </div>
+                <div>
+                    <input type="checkbox" />
+                    <label>Remember me</label>
+                </div>
+                <div>
+                    <input type="submit" value="Login" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-3"></div>
+</div>
