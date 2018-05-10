@@ -12,13 +12,13 @@ namespace DutchTreat.Controllers
 {
     public class AppController : Controller
     {
-        private readonly IMailService _mailService;
-        private readonly IDutchRepository _repository;
+        private readonly IMailService mailService;
+        private readonly IDutchRepository repository;
 
         public AppController(IMailService mailService, IDutchRepository repository)
         {
-            this._mailService = mailService;
-            this._repository = repository;
+            this.mailService = mailService;
+            this.repository = repository;
         }
 
         // Action Index is the same as the View/App/Index.cshtml. When App controller is called in Startup.cs it will trigger the action Index() which will go look for that Index.cshtml file.
@@ -39,7 +39,7 @@ namespace DutchTreat.Controllers
             if (ModelState.IsValid)
             {
                 // Send the email
-                this._mailService.SendMessage("n.stefanov@outlook.com", model.Subject, $"From: {model.Name} - {model.Email}, Message: {model.Message}");
+                this.mailService.SendMessage("n.stefanov@outlook.com", model.Subject, $"From: {model.Name} - {model.Email}, Message: {model.Message}");
                 ViewBag.UserMessage = "Mail sent!";
                 ModelState.Clear();
             }
@@ -59,7 +59,7 @@ namespace DutchTreat.Controllers
 
         public IActionResult Shop()
         {
-            var results = this._repository.GetAllProducts();
+            var results = this.repository.GetAllProducts();
 
             return View(results);
         }
