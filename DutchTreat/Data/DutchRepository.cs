@@ -4,8 +4,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DutchTreat.Data
 {
@@ -20,12 +18,24 @@ namespace DutchTreat.Data
             this.logger = logger;
         }
 
-        public IEnumerable<Order> GetAllOrders()
+        public void AddEntity(object model)
         {
-            return this.ctx.Orders
+            this.ctx.Add(model);
+        }
+
+        public IEnumerable<Order> GetAllOrders(bool includeItems)
+        {
+            if (includeItems)
+            {
+                return this.ctx.Orders
                         .Include(o => o.Items)
                         .ThenInclude(i => i.Product)
                         .ToList();
+            }
+            else
+            {
+                return this.ctx.Orders.ToList();
+            }
         }
 
         public IEnumerable<Product> GetAllProducts()
