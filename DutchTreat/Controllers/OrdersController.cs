@@ -4,10 +4,12 @@ using DutchTreat.Data.Entities;
 using DutchTreat.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DutchTreat.Controllers
 {
@@ -18,22 +20,28 @@ namespace DutchTreat.Controllers
         private readonly IDutchRepository repository;
         private readonly ILogger<OrdersController> logger;
         private readonly IMapper mapper;
+        private readonly UserManager<StoreUser> userManager;
 
         public OrdersController(
             IDutchRepository repository,
             ILogger<OrdersController> logger,
-            IMapper mapper)
+            IMapper mapper,
+            UserManager<StoreUser> userManager)
         {
             this.repository = repository;
             this.logger = logger;
             this.mapper = mapper;
+            this.userManager = userManager;
         }
 
+        [HttpGet]
         public IActionResult Get(bool includeItems = true)
         {
             try
             {
-                var results = this.repository.GetAllOrders(includeItems);
+                var username = User.Identity.Name;
+                var results = this.repository.GetAllOrdersByUser(username, includeItems);
+
                 return Ok(this.mapper.Map<IEnumerable<Order>, IEnumerable<OrderViewModel>>(results));
             }
             catch (Exception ex)
@@ -49,7 +57,7 @@ namespace DutchTreat.Controllers
         {
             try
             {
-                var order = this.repository.GetOrderById(id);
+                var order = this.repository.GetOrderById(User.Identity.Name, id);
 
                 if (order != null) return Ok(this.mapper.Map<Order, OrderViewModel>(order));
                 else return NotFound();
@@ -64,7 +72,7 @@ namespace DutchTreat.Controllers
 
         // Using [FromBody] will take options not from the query string
         [HttpPost]
-        public IActionResult Post([FromBody]OrderViewModel model)
+        public async Task<IActionResult> Post([FromBody]OrderViewModel model)
         {
             try
             {
@@ -77,6 +85,9 @@ namespace DutchTreat.Controllers
                     {
                         newOrder.OrderDate = DateTime.Now;
                     }
+
+                    var currentUser = await this.userManager.FindByNameAsync(User.Identity.Name);
+                    newOrder.User = currentUser;
 
                     this.repository.AddEntity(newOrder);
 
