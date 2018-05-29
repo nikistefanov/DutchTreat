@@ -3,11 +3,11 @@
         <div *ngFor="let product of products" class="product-info col-md-4 well well-sm">
             <img src="/img/{{ product.artId }}.jpg" [alt]="product.title" class="img-responsive" />
             <div class="product-name">{{ product.category}} - {{ product.size }}</div>
-            <div><b>Price:</b> {{ product.price | currency:"USD":true }}</div>
+            <div><b>Price:</b> {{ product.price | currency:"USD":"symbol" }}</div>
             <div><b>Artist:</b> {{ product.artist }}</div>
             <div><b>Title:</b> {{ product.title }}</div>
             <div><b>Description:</b> {{ product.artDescription }}</div>
-            <button id="buyButton" class="btn btn-success btn-sm pull-right">Buy</button>
+            <button id="buyButton" class="btn btn-success btn-sm pull-right" (click)="addProduct(product)">Buy</button>
         </div>
     </ng-container>
 

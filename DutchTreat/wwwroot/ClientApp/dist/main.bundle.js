@@ -119,10 +119,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = __webpack_require__("./node_modules/@angular/common/esm5/http.js");
 var core_1 = __webpack_require__("./node_modules/@angular/core/esm5/core.js");
 __webpack_require__("./node_modules/rxjs/_esm5/add/operator/map.js");
+var order_1 = __webpack_require__("./ClientApp/app/shared/order.ts");
 var DataService = /** @class */ (function () {
     function DataService(http) {
         this.http = http;
         this.products = [];
+        this.order = new order_1.Order();
     }
     DataService.prototype.loadProducts = function () {
         var _this = this;
@@ -132,6 +134,24 @@ var DataService = /** @class */ (function () {
             return true;
         });
     };
+    DataService.prototype.addToOrder = function (product) {
+        var item = this.order.items.find(function (i) { return i.productId === product.id; });
+        if (item) {
+            item.quantity++;
+        }
+        else {
+            item = new order_1.OrderItem();
+            item.productId = product.id;
+            item.productArtist = product.artist;
+            item.productArtId = product.artId;
+            item.productCategory = product.category;
+            item.productSize = product.size;
+            item.productTitle = product.title;
+            item.unitPrice = product.price;
+            item.quantity = 1;
+            this.order.items.push(item);
+        }
+    };
     DataService = __decorate([
         core_1.Injectable(),
         __metadata("design:paramtypes", [http_1.HttpClient])
@@ -139,6 +159,38 @@ var DataService = /** @class */ (function () {
     return DataService;
 }());
 exports.DataService = DataService;
+
+
+/***/ }),
+
+/***/ "./ClientApp/app/shared/order.ts":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var _ = __webpack_require__("./node_modules/lodash/lodash.js");
+var Order = /** @class */ (function () {
+    function Order() {
+        this.orderDate = new Date();
+        this.items = new Array();
+    }
+    Object.defineProperty(Order.prototype, "subtotal", {
+        get: function () {
+            return _.sum(_.map(this.items, function (i) { return i.unitPrice * i.quantity; }));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Order;
+}());
+exports.Order = Order;
+var OrderItem = /** @class */ (function () {
+    function OrderItem() {
+    }
+    return OrderItem;
+}());
+exports.OrderItem = OrderItem;
 
 
 /***/ }),
@@ -182,7 +234,7 @@ exports.CartComponent = CartComponent;
 /***/ "./ClientApp/app/shop/cart.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<h3>Shopping Cart</h3>"
+module.exports = "<h3>Shopping Cart</h3>\r\n<div>Number of items: {{ data.order.items.length }}</div>\r\n<div>Subtotal: {{ data.order.subtotal | currency:\"USD\":\"symbol\":\"1.2-2\" }}</div>\r\n\r\n<table class=\"table table-condensed table-hover\">\r\n    <thead>\r\n        <tr>\r\n            <td>Product</td>\r\n            <td>#</td>\r\n            <td>$</td>\r\n            <td>Total</td>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr *ngFor=\"let orderItem of data.order.items\">\r\n            <td>\r\n                {{ orderItem.productCategory }} - {{ orderItem.productTitle }}</td>\r\n            <td>{{ orderItem.quantity\r\n                }}\r\n            </td>\r\n            <td>{{ orderItem.unitPrice | currency:\"USD\":\"symbol\" }}</td>\r\n            <td>{{ (orderItem.unitPrice * orderItem.quantity) | currency:\"USD\":\"symbol\" }}</td>\r\n        </tr>\r\n    </tbody>\r\n</table>"
 
 /***/ }),
 
@@ -196,7 +248,7 @@ module.exports = ".product-info img {\r\n    max-width: 100px;\r\n    float: lef
 /***/ "./ClientApp/app/shop/product-list.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"row\">\r\n    <ng-container *ngIf=\"products else loading\">\r\n        <div *ngFor=\"let product of products\" class=\"product-info col-md-4 well well-sm\">\r\n            <img src=\"/img/{{ product.artId }}.jpg\" [alt]=\"product.title\" class=\"img-responsive\" />\r\n            <div class=\"product-name\">{{ product.category}} - {{ product.size }}</div>\r\n            <div><b>Price:</b> {{ product.price | currency:\"USD\":true }}</div>\r\n            <div><b>Artist:</b> {{ product.artist }}</div>\r\n            <div><b>Title:</b> {{ product.title }}</div>\r\n            <div><b>Description:</b> {{ product.artDescription }}</div>\r\n            <button id=\"buyButton\" class=\"btn btn-success btn-sm pull-right\">Buy</button>\r\n        </div>\r\n    </ng-container>\r\n\r\n</div>\r\n\r\n<ng-template #loading>\r\n    <div class=\"text-center\">\r\n        <i class=\"fa fa-cog fa-spin fa-5x\" aria-hidden=\"true\"></i>\r\n    </div>\r\n</ng-template>"
+module.exports = "<div class=\"row\">\r\n    <ng-container *ngIf=\"products else loading\">\r\n        <div *ngFor=\"let product of products\" class=\"product-info col-md-4 well well-sm\">\r\n            <img src=\"/img/{{ product.artId }}.jpg\" [alt]=\"product.title\" class=\"img-responsive\" />\r\n            <div class=\"product-name\">{{ product.category}} - {{ product.size }}</div>\r\n            <div><b>Price:</b> {{ product.price | currency:\"USD\":\"symbol\" }}</div>\r\n            <div><b>Artist:</b> {{ product.artist }}</div>\r\n            <div><b>Title:</b> {{ product.title }}</div>\r\n            <div><b>Description:</b> {{ product.artDescription }}</div>\r\n            <button id=\"buyButton\" class=\"btn btn-success btn-sm pull-right\" (click)=\"addProduct(product)\">Buy</button>\r\n        </div>\r\n    </ng-container>\r\n\r\n</div>\r\n\r\n<ng-template #loading>\r\n    <div class=\"text-center\">\r\n        <i class=\"fa fa-cog fa-spin fa-5x\" aria-hidden=\"true\"></i>\r\n    </div>\r\n</ng-template>"
 
 /***/ }),
 
@@ -229,6 +281,9 @@ var ProductListComponent = /** @class */ (function () {
                 _this.products = _this.data.products;
             }
         });
+    };
+    ProductListComponent.prototype.addProduct = function (prodcut) {
+        this.data.addToOrder(prodcut);
     };
     ProductListComponent = __decorate([
         core_1.Component({

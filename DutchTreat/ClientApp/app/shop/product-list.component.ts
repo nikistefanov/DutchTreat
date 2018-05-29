@@ -20,4 +20,8 @@ export class ProductListComponent implements OnInit {
                 }
             });
     }
+
+    addProduct(prodcut: Product) {
+        this.data.addToOrder(prodcut);
+    }
 }

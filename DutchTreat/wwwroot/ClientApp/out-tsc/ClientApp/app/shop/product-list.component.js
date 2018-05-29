@@ -14,14 +14,24 @@ var data_service_1 = require("../shared/data.service");
 var ProductListComponent = /** @class */ (function () {
     function ProductListComponent(data) {
         this.data = data;
-        this.products = [];
-        this.products = data.products;
     }
+    ProductListComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.data.loadProducts()
+            .subscribe(function (success) {
+            if (success) {
+                _this.products = _this.data.products;
+            }
+        });
+    };
+    ProductListComponent.prototype.addProduct = function (prodcut) {
+        this.data.addToOrder(prodcut);
+    };
     ProductListComponent = __decorate([
         core_1.Component({
             selector: "product-list",
             templateUrl: "./product-list.component.html",
-            styleUrls: []
+            styleUrls: ["product-list.component.css"]
         }),
         __metadata("design:paramtypes", [data_service_1.DataService])
     ], ProductListComponent);
